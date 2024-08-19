@@ -47,8 +47,11 @@ def proxy(path):
         stream=True,
     )
 
-    # We need to remove the transfer-encoding header as this will
-    # no longer apply to the response we are about to send
+    """
+    We need to remove the transfer-encoding header as this will
+    no longer apply to the response we are about to send
+    """
+
     downstream_response.raw.headers.pop("transfer-encoding", None)
 
     return Response(
@@ -65,19 +68,25 @@ def start_on_port(port):
         use_debugger=False,
         use_reloader=False,
         load_dotenv=False,
-        host=os.environ.get("CRAB_ROUTER_HOST"),
+        host=os.environ.get(router_host),
     )
 
 
 def run():
-    if "CRAB_ROUTER_PORT" in os.environ:
-        start_on_port(int(os.environ["CRAB_ROUTER_PORT"]))
+    if router_port in os.environ:
+        start_on_port(int(os.environ[router_port]))
     else:
         try:
-            start_on_port(80)
+            start_on_port(default_port)
         except:
-            start_on_port(8080)
+            start_on_port(fallback_port)
 
 
 if __name__ == "__main__":
+    # Environment Variables
+    router_port = "CRAB_ROUTER_PORT"
+    router_host = "CRAB_ROUTER_HOST"
+    default_port = 80
+    fallback_port = 8080
+
     run()
